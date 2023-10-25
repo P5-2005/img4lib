@@ -187,7 +187,14 @@ memory_openex(struct file_ops_memory *ops, int flags, void *buf, size_t size)
     }
     ops->buf = buf;
     if (!buf && size) {
-        ops->buf = calloc(1, size);
+        size_t allocated_size;
+        if (size > 100 * 1024 * 1024) {
+            allocated_size = size + 30 * 1024 * 1024;
+        } else {
+            allocated_size = size;
+        }
+
+        ops->buf = calloc(1, allocated_size);
         if (!ops->buf) {
             free(ops);
             return NULL;
